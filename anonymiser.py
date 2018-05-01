@@ -123,10 +123,49 @@ def shuffleBccAndCc(input, everyCountChar, amountToMove):
 
 	return input
 
+def shuffleXHeader(input, xHeader, everyCountChar, amountToMove):
+	result = [i for i in input if xHeader.replace(" ", "").lower() in i.lower()]
+	if len(result) >= 1:
+		xHeaderResult = result[0].split(xHeader)[1]
+		xHeaderResultIndexInInput = input.index(result[0])
+		leftAngularBracketPosition = xHeaderResult.find("<") #Find position of <
+		rightAngularBracketPosition = xHeaderResult.find(">") #Find position of >	
+		if leftAngularBracketPosition != -1:
+			xHeaderResultName = xHeaderResult[:leftAngularBracketPosition-1].lower().replace('\"', '').replace(" ", "").replace("\n", "")
+			xHeaderResultEmail = xHeaderResult[leftAngularBracketPosition+1:rightAngularBracketPosition]
+			xHeaderResultRestOfString = xHeaderResult[rightAngularBracketPosition+1:]
+			shiftedxHeaderResultName = '\"' + shiftString(xHeaderResultName, everyCountChar, amountToMove) + '\"'
+			shiftedxHeaderResultEmail = "<" + shiftString(xHeaderResultEmail, everyCountChar, amountToMove) + ">"
+			result[0] = xHeader + shiftedxHeaderResultName + " " + shiftedxHeaderResultEmail + xHeaderResultRestOfString
+			if "\n" not in result[0]:
+				result[0] = result[0] + "\n"
+		else:
+			xHeaderResultName = xHeaderResult.lower().replace(" ", "").replace("\n", "")
+			result[0] = xHeader + shiftString(xHeaderResultName, everyCountChar, amountToMove)
+			if "\n" not in result[0]:
+				result[0] = result[0] + "\n"
+		
+		input[xHeaderResultIndexInInput] = result[0]
+
+	return input
 
 def anonymiseSenderAndReceiver(input, everyCountChar, amountToMove):		
 	input = shuffleHeader(input, "From: ", "X-From: ", everyCountChar, amountToMove)
 	input = shuffleHeader(input, "To: ", "X-To: ", everyCountChar, amountToMove)
 	input = shuffleBccAndCc(input, everyCountChar, amountToMove)
+	input = shuffleXHeader(input, "X-Origin: ", everyCountChar, amountToMove)
+
+	return input
+
+
+def anonymiseFolderHeader(input, folderName):
+	result = [i for i in input if "X-Folder: ".lower() in i.lower()]
+	if len(result) >= 1:		
+		xHeaderResultIndexInInput = input.index(result[0])		
+		result[0] = "X-Folder: " + folderName
+		if "\n" not in result[0]:
+			result[0] = result[0] + "\n"
+		
+		input[xHeaderResultIndexInInput] = result[0]
 
 	return input

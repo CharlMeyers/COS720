@@ -30,6 +30,7 @@ def search_directory(directory, outputDirectory, shouldRemoveBody):
 					with open(outputFilePath, "w+") as fileToWrite:						
 						removedBodyFromEmail = anonymiser.removeBody(fileToCopy, shouldRemoveBody)						
 						modifiedNamesAndSurnames = anonymiser.anonymiseSenderAndReceiver(removedBodyFromEmail, everyCountChar, amountToMove)
+						anonymisedEmailHeaders = anonymiser.anonymiseFolderHeader(modifiedNamesAndSurnames, outputPath)
 						fileToWrite.writelines(modifiedNamesAndSurnames)
 
 
