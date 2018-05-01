@@ -33,28 +33,100 @@ def shiftString(string, everyCountChar, amountToMove):
 	return shiftedString
 
 
+def shuffleHeader(input, header, xHeader, everyCountChar, amountToMove):
+	result = [i for i in input if header.replace(" ", "").lower() in i.lower()]
+	if len(result) >= 2:
+		headerEmailAddress = result[0].split(header)[1].replace("\n", "")
+		headerEmailAddressIndexInInput = input.index(result[0])
+		result[0] = header + shiftString(headerEmailAddress, everyCountChar, amountToMove) + "\n"
+
+		xHeaderResult = result[1].split(xHeader)[1]
+		xHeaderResultIndexInInput = input.index(result[1])
+		leftAngularBracketPosition = xHeaderResult.find("<") #Find position of <
+		rightAngularBracketPosition = xHeaderResult.find(">") #Find position of >	
+		if leftAngularBracketPosition != -1:
+			xHeaderResultName = xHeaderResult[:leftAngularBracketPosition-1].lower().replace('\"', '').replace(" ", "").replace("\n", "")
+			xHeaderResultEmail = xHeaderResult[leftAngularBracketPosition+1:rightAngularBracketPosition]
+			xHeaderResultRestOfString = xHeaderResult[rightAngularBracketPosition+1:]
+			shiftedxHeaderResultName = '\"' + shiftString(xHeaderResultName, everyCountChar, amountToMove) + '\"'
+			shiftedxHeaderResultEmail = "<" + shiftString(xHeaderResultEmail, everyCountChar, amountToMove) + ">"
+			result[1] = xHeader + shiftedxHeaderResultName + " " + shiftedxHeaderResultEmail + xHeaderResultRestOfString
+			if "\n" not in result[1]:
+				result[1] = result[1] + "\n"
+		else:
+			xHeaderResultName = xHeaderResult.lower().replace(" ", "").replace("\n", "")
+			result[1] = xHeader + shiftString(xHeaderResultName, everyCountChar, amountToMove)
+			if "\n" not in result[1]:
+				result[1] = result[1] + "\n"
+
+		input[headerEmailAddressIndexInInput] = result[0]
+		input[xHeaderResultIndexInInput] = result[1]
+
+	return input
+
+def shuffleBccAndCc(input, everyCountChar, amountToMove):
+	ccResult = [i for i in input if "cc:" in i.lower() and "bcc:" not in i.lower()]
+	if len(ccResult) > 1:
+		headerEmailAddress = ccResult[0].split("Cc: ")[1].replace("\n", "")
+		headerEmailAddressIndexInInput = input.index(ccResult[0])
+		ccResult[0] = "Cc: " + shiftString(headerEmailAddress, everyCountChar, amountToMove) + "\n"
+
+		xHeaderResult = ccResult[1].split("X-cc: ")[1]
+		xHeaderResultIndexInInput = input.index(ccResult[1])
+		leftAngularBracketPosition = xHeaderResult.find("<") #Find position of <
+		rightAngularBracketPosition = xHeaderResult.find(">") #Find position of >	
+		if leftAngularBracketPosition != -1:
+			xHeaderResultName = xHeaderResult[:leftAngularBracketPosition-1].lower().replace('\"', '').replace(" ", "").replace("\n", "")
+			xHeaderResultEmail = xHeaderResult[leftAngularBracketPosition+1:rightAngularBracketPosition]
+			xHeaderResultRestOfString = xHeaderResult[rightAngularBracketPosition+1:]
+			shiftedxHeaderResultName = '\"' + shiftString(xHeaderResultName, everyCountChar, amountToMove) + '\"'
+			shiftedxHeaderResultEmail = "<" + shiftString(xHeaderResultEmail, everyCountChar, amountToMove) + ">"
+			ccResult[1] = "X-cc: " + shiftedxHeaderResultName + " " + shiftedxHeaderResultEmail + xHeaderResultRestOfString
+			if "\n" not in ccResult[1]:
+				ccResult[1] = ccResult[1] + "\n"
+		else:
+			xHeaderResultName = xHeaderResult.lower().replace(" ", "").replace("\n", "")
+			ccResult[1] = "X-cc: " + shiftString(xHeaderResultName, everyCountChar, amountToMove)
+			if "\n" not in ccResult[1]:
+				ccResult[1] = ccResult[1] + "\n"
+
+		input[headerEmailAddressIndexInInput] = ccResult[0]
+		input[xHeaderResultIndexInInput] = ccResult[1]
+
+	bccResult = [i for i in input if "bcc:" in i.lower()]
+	if len(bccResult) > 1:
+		headerEmailAddress = bccResult[0].split("Bcc: ")[1].replace("\n", "")
+		headerEmailAddressIndexInInput = input.index(bccResult[0])
+		bccResult[0] = "Bcc: " + shiftString(headerEmailAddress, everyCountChar, amountToMove) + "\n"
+
+		xHeaderResult = bccResult[1].split("X-bcc: ")[1]
+		xHeaderResultIndexInInput = input.index(bccResult[1])
+		leftAngularBracketPosition = xHeaderResult.find("<") #Find position of <
+		rightAngularBracketPosition = xHeaderResult.find(">") #Find position of >	
+		if leftAngularBracketPosition != -1:
+			xHeaderResultName = xHeaderResult[:leftAngularBracketPosition-1].lower().replace('\"', '').replace(" ", "").replace("\n", "")
+			xHeaderResultEmail = xHeaderResult[leftAngularBracketPosition+1:rightAngularBracketPosition]
+			xHeaderResultRestOfString = xHeaderResult[rightAngularBracketPosition+1:]
+			shiftedxHeaderResultName = '\"' + shiftString(xHeaderResultName, everyCountChar, amountToMove) + '\"'
+			shiftedxHeaderResultEmail = "<" + shiftString(xHeaderResultEmail, everyCountChar, amountToMove) + ">"
+			bccResult[1] = "X-bcc: " + shiftedxHeaderResultName + " " + shiftedxHeaderResultEmail + xHeaderResultRestOfString
+			if "\n" not in bccResult[1]:
+				bccResult[1] = bccResult[1] + "\n"
+		else:
+			xHeaderResultName = xHeaderResult.lower().replace(" ", "").replace("\n", "")
+			bccResult[1] = "X-bcc: " + shiftString(xHeaderResultName, everyCountChar, amountToMove)
+			if "\n" not in bccResult[1]:
+				bccResult[1] = bccResult[1] + "\n"
+
+		input[headerEmailAddressIndexInInput] = bccResult[0]
+		input[xHeaderResultIndexInInput] = bccResult[1]
+
+	return input
+
+
 def anonymiseSenderAndReceiver(input, everyCountChar, amountToMove):		
-	result = [i for i in input if "from:" in i.lower()]		
-	fromEmail = result[0].split("From: ")[1].replace("\n", "")
-	fromEmailIndexInInput = input.index(result[0])
-	result[0] = "From: " + shiftString(fromEmail, everyCountChar, amountToMove) + "\n"
-
-	x_from = result[1].split("X-From: ")[1]
-	x_fromIndexInInput = input.index(result[1])
-	leftAngularBracketPosition = x_from.find("<") #Find position of <
-	rightAngularBracketPosition = x_from.find(">") #Find position of >	
-	if leftAngularBracketPosition != -1:
-		x_fromName = x_from[:leftAngularBracketPosition-1].lower().replace('\"', '').replace(" ", "").replace("\n", "")
-		x_fromEmail = x_from[leftAngularBracketPosition+1:rightAngularBracketPosition]
-		x_fromRestOfString = x_from[rightAngularBracketPosition+1:]
-		shiftedX_FromName = '\"' + shiftString(x_fromName, everyCountChar, amountToMove) + '\"'
-		shiftedX_FromEmail = "<" + shiftString(x_fromEmail, everyCountChar, amountToMove) + ">"
-		result[1] = "X-From: " + shiftedX_FromName + " " + shiftedX_FromEmail + x_fromRestOfString + "\n"
-	else:
-		x_fromName = x_from.lower().replace(" ", "").replace("\n", "")
-		result[1] = "X-From: " + shiftString(x_fromName, everyCountChar, amountToMove) + "\n"
-
-	input[fromEmailIndexInInput] = result[0]
-	input[x_fromIndexInInput] = result[1]
+	input = shuffleHeader(input, "From: ", "X-From: ", everyCountChar, amountToMove)
+	input = shuffleHeader(input, "To: ", "X-To: ", everyCountChar, amountToMove)
+	input = shuffleBccAndCc(input, everyCountChar, amountToMove)
 
 	return input
