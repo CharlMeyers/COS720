@@ -74,35 +74,35 @@ def convertTimestamp(timestamp):
 	elif month == "Dec":
 		month = 12;
 
-	if sign == "-":
-		hour -= timezone;
+	# if sign == "-":
+	# 	hour -= timezone;
 
-		if hour < 0:
-			hour = 24 + hour;
-			day -= 1;
+	# 	if hour < 0:
+	# 		hour = 24 + hour;
+	# 		day -= 1;
 
-			if day == 0:
-				month -= 1;
+	# 		if day == 0:
+	# 			month -= 1;
 				
-				if month == 0:
-					month = 12;
-					year = year - 1;
+	# 			if month == 0:
+	# 				month = 12;
+	# 				year = year - 1;
 				
-				day = getNumDaysOfMonth(month, year);
-	else:
-		hour += timezone;
+	# 			day = getNumDaysOfMonth(month, year);
+	# else:
+	# 	hour += timezone;
 
-		if hour >= 24:
-			hour = hour - 24;
-			day += 1;
+	# 	if hour >= 24:
+	# 		hour = hour - 24;
+	# 		day += 1;
 
-			if day > getNumDaysOfMonth(month, year):
-				day = 1;
-				month += 1;
+	# 		if day > getNumDaysOfMonth(month, year):
+	# 			day = 1;
+	# 			month += 1;
 				
-				if month > 12:
-					month = 1;
-					year = year + 1;
+	# 			if month > 12:
+	# 				month = 1;
+	# 				year = year + 1;
 
 	if day < 10:
 		day = "0" + str(day);

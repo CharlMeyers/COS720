@@ -52,9 +52,8 @@ for i, emailMap in enumerate(filesToProcess):
 				continue;
 
 			valueInLine = headerInLine + separatorInLine + valueInLine;
-			valueInLine.replace("\"", "").replace(",", "+");
-			oldValue = csvLine[previousHeader];
-			csvLine[previousHeader] = oldValue + " " + valueInLine.strip();
+			valueInLine = valueInLine.replace("\"", "").replace(",", "+");
+			csvLine[previousHeader] = csvLine[previousHeader] + " " + valueInLine.strip();
 		else:
 			if headerInLine == "Date":
 				csvLine[headerInLine] = date_calculations.convertTimestamp(valueInLine.replace("\"", "").replace(",", "+").strip());
@@ -74,12 +73,15 @@ for i, emailMap in enumerate(filesToProcess):
 
 	csvFileContent.append(csvLine);
 	email.close();
-	print("\rReading emails progress: " + str(round(i / len(filesToProcess) * 100, 2)) + "%", end='', flush=True);
+
+	if i % 1000 == 0:
+		print("\rReading emails progress: " + str(round(i / len(filesToProcess) * 100, 2)) + "%", end='', flush=True);
 
 	# if round(i / len(filesToProcess) * 100, 2) > 1:
 	# 	break;
 
-print("\nCompiling CSV file...");
+print("\rReading emails progress: " + str(round(i / len(filesToProcess) * 100, 2)) + "%", end='', flush=True);
+print("\nCompiling CSV file...", end='', flush=True);
 csvFile = open("output/cleaned_data.csv", "w");
 line = "";
 
@@ -100,4 +102,4 @@ for contentMap in csvFileContent:
 	csvFile.write(line[:-1] + "\n");
 
 csvFile.close();
-print("Done");
+print(" Done");
