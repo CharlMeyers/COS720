@@ -1,8 +1,10 @@
 import shutil
+import os
 import sys
 import random
 import anonymiser
 import traceback
+import utils
 
 def joinEmailHeaderList(line, handlingHeader, headerList, header, nextHeader=None, excludeString=None):
 	searchLine = line.lower()
@@ -103,31 +105,30 @@ def removeBody(infile, shouldRemoveBody):
 	return emailHeaderLines
 
 
-def search_directory(directory, outputDirectory, shouldRemoveBody):
-	filePath = 'F:/UserData/My Documents/Coding Stuff/maildir/dean-c/info2/5'
-	everyCountChar = random.randint(3, 6)
-	amountToMove = random.randint(3,5)	
-	# for root, directories, files in os.walk(directory):
-	# 	outputPath = os.path.join(outputDirectory, root[len(directory)+1:])		
-	# 	if not os.path.isdir(outputPath):
-	# 		os.mkdir(outputPath)
+def search_directory(directory, outputDirectory, shouldRemoveBody):	
+	everyCountChar = 5
+	amountToMove = 4
+	for root, directories, files in os.walk(directory):
+		outputPath = os.path.join(outputDirectory, root[len(directory)+1:])		
+		if not os.path.isdir(outputPath):
+			os.mkdir(outputPath)
 		
-	# 	log("Anonymising ", root)
-	# 	for file in os.listdir(root):
-	# 		filePath = os.path.join(root,file)
-	# 		outputFilePath = os.path.join(outputPath,file)
-	# 		if os.path.isfile(filePath):
-	with open(filePath, "r") as fileToCopy:					
-		with open('F:/UserData/My Documents/Coding Stuff/anonymisedMail/5', "w+") as fileToWrite:
-			try:		
-				removedBodyFromEmail = removeBody(fileToCopy, shouldRemoveBody)					
-				# modifiedNamesAndSurnames = anonymiser.anonymiseSenderAndReceiver(removedBodyFromEmail, everyCountChar, amountToMove)
-				# anonymisedEmailHeaders = anonymiser.removeUnneededHeaders(modifiedNamesAndSurnames)
-				fileToWrite.writelines(removedBodyFromEmail)
-			except Exception:
-				print("Error on ", filePath)
-				traceback.print_exc()
-				sys.exit(1)
+		utils.log("Anonymising ", root)
+		for file in os.listdir(root):
+			filePath = os.path.join(root,file)
+			outputFilePath = os.path.join(outputPath,file)
+			if os.path.isfile(filePath):
+				with open(filePath, "r") as fileToCopy:					
+					with open(outputFilePath, "w+") as fileToWrite:
+						try:		
+							removedBodyFromEmail = removeBody(fileToCopy, shouldRemoveBody)					
+							modifiedNamesAndSurnames = anonymiser.anonymiseSenderAndReceiver(removedBodyFromEmail, everyCountChar, amountToMove)
+							anonymisedEmailHeaders = anonymiser.removeUnneededHeaders(modifiedNamesAndSurnames)
+							fileToWrite.writelines(anonymisedEmailHeaders)
+						except Exception:
+							print("Error on ", filePath)
+							traceback.print_exc()
+							sys.exit(1)
 
 
-search_directory('F:/UserData/My Documents/Coding Stuff/maildir/dean-c/info2/5', 'F:/UserData/My Documents/Coding Stuff/anonymisedMail', True)
+search_directory('F:/UserData/My Documents/Coding Stuff/maildir/arnold-j\deleted_items/699', 'F:/UserData/My Documents/Coding Stuff/anonymisedMail', True)
