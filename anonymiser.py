@@ -27,15 +27,23 @@ def shuffleHeaderWithXHeader(input, header, xHeader, everyCountChar, amountToMov
 		splitHeader = result[0].split(header)
 		if len(splitHeader) > 1:			
 			headerValue = splitHeader[1].replace("\n", "").replace("\t", "")
-			emailAddresses = headerValue.split(", ")
+			emailAddresses = headerValue.split(", ")				
 
 			emailAddressesLength = len(emailAddresses)
 			for i in range(emailAddressesLength):
-				localPart = emailAddresses[i].split("@")
-				if i != emailAddressesLength - 1:
-					emailAddresses[i] = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1] + ", "
+				emailAddress = emailAddresses[i]
+
+				if emailAddress.find("@") > -1:
+					localPart = emailAddresses[i].split("@")
+					
+					shiftedEmail = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1]
 				else:
-					emailAddresses[i] = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1]
+					shiftedEmail = shiftString(emailAddress, everyCountChar, amountToMove)
+
+				if i != emailAddressesLength - 1:					
+					emailAddresses[i] = shiftedEmail + ", "
+				else:
+					emailAddresses[i] = shiftedEmail
 
 			result[0] = header + "".join(emailAddresses) + "\n"
 

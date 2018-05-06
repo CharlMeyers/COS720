@@ -115,42 +115,38 @@ def removeBody(infile, shouldRemoveBody):
 
 	joinedSubjectLine = ""
 
-	# Remove body first and preprocess before preprocessing headers
-	for line in infile:
-		emailFileLines.append(line)
+	# Remove body first and preprocess before preprocessing headers	
+	for line in infile:		
+		if shouldRemoveBody and (line.find("X-FileName:") == -1 and line != "\n"):
+			emailFileLines.append(line)
 
-		joinedSubjectLine, handlingSubjectHeader, replaceSubjectLine = joinSubjectHeaderIntoOneLine(line, handlingSubjectHeader, joinedSubjectLine, replaceSubjectLine)
-		if replaceSubjectLine:
-			joinSubjectHeaderToString(emailFileLines, joinedSubjectLine)
-			replaceSubjectLine = False
-
-	for line in emailFileLines:
-		if shouldRemoveBody and line != "\n":
-			emailHeaderLines.append(line)
-
-			fromHeaderList, handlingFromHeader = joinEmailHeaderList(line, handlingFromHeader, fromHeaderList, "from:", "to:", "subject", "subject:")
-			toHeaderList, handlingToHeader = joinEmailHeaderList(line, handlingToHeader, toHeaderList, "to:", "subject:", "subject:")
-			ccHeaderList, handlingCcHeader = joinEmailHeaderList(line, handlingCcHeader, ccHeaderList, "cc:", "mime-version:", "bcc:")
-			bccHeaderList, handlingBccHeader = joinEmailHeaderList(line, handlingBccHeader, bccHeaderList, "bcc:", "x-from:", "x-bcc:")
-
-			xfromHeaderList, handlingXFromHeader = joinEmailHeaderList(line, handlingXFromHeader, xfromHeaderList, "x-from:", "x-to:")
-			xtoHeaderList, handlingXToHeader = joinEmailHeaderList(line, handlingXToHeader, xtoHeaderList, "x-to:", "x-cc:")
-			xccHeaderList, handlingXCcHeader = joinEmailHeaderList(line, handlingXCcHeader, xccHeaderList, "x-cc:", "x-bcc:")
-			xbccHeaderList, handlingXBccHeader = joinEmailHeaderList(line, handlingXBccHeader, xbccHeaderList, "x-bcc:", "x-folder:")
+			joinedSubjectLine, handlingSubjectHeader, replaceSubjectLine = joinSubjectHeaderIntoOneLine(line, handlingSubjectHeader, joinedSubjectLine, replaceSubjectLine)
+			if replaceSubjectLine:
+				joinSubjectHeaderToString(emailFileLines, joinedSubjectLine)
+				replaceSubjectLine = False
 		elif not shouldRemoveBody:
-			emailHeaderLines.append(line)
+			emailFileLines.append(line)
 
-			fromHeaderList, handlingFromHeader = joinEmailHeaderList(line, handlingFromHeader, fromHeaderList, "from:", "to:", "subject", "subject:")
-			toHeaderList, handlingToHeader = joinEmailHeaderList(line, handlingToHeader, toHeaderList, "to:", "subject:", "subject:")
-			ccHeaderList, handlingCcHeader = joinEmailHeaderList(line, handlingCcHeader, ccHeaderList, "cc:", "mime-version:", "bcc:")
-			bccHeaderList, handlingBccHeader = joinEmailHeaderList(line, handlingBccHeader, bccHeaderList, "bcc:", "x-from:", "x-bcc:")
-
-			xfromHeaderList, handlingXFromHeader = joinEmailHeaderList(line, handlingXFromHeader, xfromHeaderList, "x-from:", "x-to:")
-			xtoHeaderList, handlingXToHeader = joinEmailHeaderList(line, handlingXToHeader, xtoHeaderList, "x-to:", "x-cc:")
-			xccHeaderList, handlingXCcHeader = joinEmailHeaderList(line, handlingXCcHeader, xccHeaderList, "x-cc:", "x-bcc:")
-			xbccHeaderList, handlingXBccHeader = joinEmailHeaderList(line, handlingXBccHeader, xbccHeaderList, "x-bcc:", "x-folder:")
+			joinedSubjectLine, handlingSubjectHeader, replaceSubjectLine = joinSubjectHeaderIntoOneLine(line, handlingSubjectHeader, joinedSubjectLine, replaceSubjectLine)
+			if replaceSubjectLine:
+				joinSubjectHeaderToString(emailFileLines, joinedSubjectLine)
+				replaceSubjectLine = False
 		else:
+			emailFileLines.append(line)
 			break
+	
+	for line in emailFileLines:				
+		emailHeaderLines.append(line)
+
+		fromHeaderList, handlingFromHeader = joinEmailHeaderList(line, handlingFromHeader, fromHeaderList, "from:", "to:", "subject", "subject:")
+		toHeaderList, handlingToHeader = joinEmailHeaderList(line, handlingToHeader, toHeaderList, "to:", "subject:", "subject:")
+		ccHeaderList, handlingCcHeader = joinEmailHeaderList(line, handlingCcHeader, ccHeaderList, "cc:", "mime-version:", "bcc:")
+		bccHeaderList, handlingBccHeader = joinEmailHeaderList(line, handlingBccHeader, bccHeaderList, "bcc:", "x-from:", "x-bcc:")
+
+		xfromHeaderList, handlingXFromHeader = joinEmailHeaderList(line, handlingXFromHeader, xfromHeaderList, "x-from:", "x-to:")
+		xtoHeaderList, handlingXToHeader = joinEmailHeaderList(line, handlingXToHeader, xtoHeaderList, "x-to:", "x-cc:")
+		xccHeaderList, handlingXCcHeader = joinEmailHeaderList(line, handlingXCcHeader, xccHeaderList, "x-cc:", "x-bcc:")
+		xbccHeaderList, handlingXBccHeader = joinEmailHeaderList(line, handlingXBccHeader, xbccHeaderList, "x-bcc:", "x-folder:")		
 
 	joinEmailHeaderListsToString(emailHeaderLines, fromHeaderList, "from:", "to:", "subject:", "subject:")
 	joinEmailHeaderListsToString(emailHeaderLines, toHeaderList, "to:", "subject:", "subject:")
