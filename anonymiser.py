@@ -24,77 +24,79 @@ def shuffleHeaderWithXHeader(input, header, xHeader, everyCountChar, amountToMov
 	result = [i for i in input if header.replace(" ", "").lower() in i.lower() and (True if excludeHeader is None else excludeHeader.replace(" ", "").lower() not in i.lower())]	
 	if len(result) > 1:
 		headerEmailAddressIndexInInput = input.index(result[0])
-		headerValue = result[0].split(header)[1].replace("\n", "").replace("\t", "")
-		emailAddresses = headerValue.split(", ")
+		splitHeader = result[0].split(header)
+		if len(splitHeader) > 1:			
+			headerValue = splitHeader[1].replace("\n", "").replace("\t", "")
+			emailAddresses = headerValue.split(", ")
 
-		emailAddressesLength = len(emailAddresses)
-		for i in range(emailAddressesLength):
-			localPart = emailAddresses[i].split("@")
-			if i != emailAddressesLength - 1:
-				emailAddresses[i] = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1] + ", "
+			emailAddressesLength = len(emailAddresses)
+			for i in range(emailAddressesLength):
+				localPart = emailAddresses[i].split("@")
+				if i != emailAddressesLength - 1:
+					emailAddresses[i] = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1] + ", "
+				else:
+					emailAddresses[i] = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1]
+
+			result[0] = header + "".join(emailAddresses) + "\n"
+
+			xHeaderResultIndexInInput = input.index(result[1])
+			xHeaderResult = result[1].split(xHeader)[1]
+			if xHeaderResult.find("<") > -1 and xHeaderResult.find(">") > -1:
+				xHeaderValues = xHeaderResult.split(">, ")
+				xHeaderValuesLength = len(xHeaderValues)
+				for i in range(xHeaderValuesLength):
+					value = xHeaderValues[i]
+					leftAngularBracketPosition = value.find("<") #Find position of <				
+					
+					name = value[:leftAngularBracketPosition-1].lower().replace('\"', '').replace(" ", "").replace("\n", "")
+					email = value[leftAngularBracketPosition+1:].replace("\n", "")
+					shiftedName = '\"' + shiftString(name, everyCountChar, amountToMove) + '\"'
+
+					if leftAngularBracketPosition > -1:
+						if email.find("@") > -1:
+							localPart = email.split("@")								
+							shiftedEmail = "<" + shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1] + ">"
+						else:
+							shiftedEmail = "<" + shiftString(email, everyCountChar, amountToMove) + ">"
+					else:
+						if email.find("@") > -1:
+							localPart = email.split("@")								
+							shiftedEmail = shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1]
+						else:
+							shiftedEmail = shiftString(email, everyCountChar, amountToMove)
+
+					if i != xHeaderValuesLength - 1:
+						xHeaderValues[i] = shiftedName + " " + shiftedEmail + ", "
+					else:
+						xHeaderValues[i] = shiftedName + " " + shiftedEmail
+
+				result[1] = xHeader + "".join(xHeaderValues)
+
+				if "\n" not in result[1]:
+					result[1] = result[1] + "\n"
 			else:
-				emailAddresses[i] = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1]
+				xHeaderValues = xHeaderResult.lower().replace("\n", "").split(", ")
+				xHeaderValuesLength = len(xHeaderValues)
+				for i in range(xHeaderValuesLength):
+					value = xHeaderValues[i].replace(" ", "")
 
-		result[0] = header + "".join(emailAddresses) + "\n"
-
-		xHeaderResultIndexInInput = input.index(result[1])
-		xHeaderResult = result[1].split(xHeader)[1]
-		if xHeaderResult.find("<") > -1 and xHeaderResult.find(">") > -1:
-			xHeaderValues = xHeaderResult.split(">, ")
-			xHeaderValuesLength = len(xHeaderValues)
-			for i in range(xHeaderValuesLength):
-				value = xHeaderValues[i]
-				leftAngularBracketPosition = value.find("<") #Find position of <				
-				
-				name = value[:leftAngularBracketPosition-1].lower().replace('\"', '').replace(" ", "").replace("\n", "")
-				email = value[leftAngularBracketPosition+1:].replace("\n", "")
-				shiftedName = '\"' + shiftString(name, everyCountChar, amountToMove) + '\"'
-
-				if leftAngularBracketPosition > -1:
-					if email.find("@") > -1:
-						localPart = email.split("@")								
-						shiftedEmail = "<" + shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1] + ">"
+					if value.find("@") > -1:
+						localPart = value.split("@")
+						shiftedValue = 	shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1]
 					else:
-						shiftedEmail = "<" + shiftString(email, everyCountChar, amountToMove) + ">"
-				else:
-					if email.find("@") > -1:
-						localPart = email.split("@")								
-						shiftedEmail = shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1]
+						shiftedValue = shiftString(value, everyCountChar, amountToMove)
+
+					if i != xHeaderValuesLength - 1:
+						xHeaderValues[i] = shiftedValue + ", "
 					else:
-						shiftedEmail = shiftString(email, everyCountChar, amountToMove)
+						xHeaderValues[i] = shiftedValue
 
-				if i != xHeaderValuesLength - 1:
-					xHeaderValues[i] = shiftedName + " " + shiftedEmail + ", "
-				else:
-					xHeaderValues[i] = shiftedName + " " + shiftedEmail
+				result[1] = xHeader + "".join(xHeaderValues)
+				if "\n" not in result[1]:
+					result[1] = result[1] + "\n"
 
-			result[1] = xHeader + "".join(xHeaderValues)
-
-			if "\n" not in result[1]:
-				result[1] = result[1] + "\n"
-		else:
-			xHeaderValues = xHeaderResult.lower().replace("\n", "").split(", ")
-			xHeaderValuesLength = len(xHeaderValues)
-			for i in range(xHeaderValuesLength):
-				value = xHeaderValues[i].replace(" ", "")
-
-				if value.find("@") > -1:
-					localPart = value.split("@")
-					shiftedValue = 	shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1]
-				else:
-					shiftedValue = shiftString(value, everyCountChar, amountToMove)
-
-				if i != xHeaderValuesLength - 1:
-					xHeaderValues[i] = shiftedValue + ", "
-				else:
-					xHeaderValues[i] = shiftedValue
-
-			result[1] = xHeader + "".join(xHeaderValues)
-			if "\n" not in result[1]:
-				result[1] = result[1] + "\n"
-
-		input[headerEmailAddressIndexInInput] = result[0]
-		input[xHeaderResultIndexInInput] = result[1]
+			input[headerEmailAddressIndexInInput] = result[0]
+			input[xHeaderResultIndexInInput] = result[1]
 
 	return input
 
