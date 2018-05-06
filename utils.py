@@ -1,3 +1,6 @@
+import os
+import sys
+
 def printList(string, list):
 	output = string
 
