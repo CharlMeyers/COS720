@@ -19,6 +19,16 @@ def shiftString(string, everyCountChar, amountToMove):
 
 	return shiftedString
 
+def shuffleEmailAddress(emailAddress, everyCountChar, amountToMove):
+	shiftedEmail = ""
+	if emailAddress.find("@") > -1:
+		localPart = emailAddress.split("@")
+		
+		shiftedEmail = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1]
+	else:
+		shiftedEmail = shiftString(emailAddress, everyCountChar, amountToMove)
+
+	return shiftedEmail
 
 def shuffleHeaderWithXHeader(input, header, xHeader, everyCountChar, amountToMove, excludeHeader=None):
 	result = [i for i in input if header.replace(" ", "").lower() in i.lower() and (True if excludeHeader is None else excludeHeader.replace(" ", "").lower() not in i.lower())]	

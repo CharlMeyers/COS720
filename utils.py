@@ -1,6 +1,9 @@
 import os
 import sys
 
+EVERY_COUNT_CHARACTERS = 5
+AMOUNT_TO_MOVE_EVERY_CHARACTER = 4
+
 def printList(string, list):
 	output = string
 

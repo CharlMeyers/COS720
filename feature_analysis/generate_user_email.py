@@ -1,10 +1,21 @@
 import os;
+# From https://pythonadventures.wordpress.com/tag/import-from-parent-directory/
+def load_src(name, fpath):
+    import imp;
+    return imp.load_source(name, os.path.join(os.path.dirname(__file__), fpath))
+
+load_src("utils", "../utils.py");
+import utils;
+load_src("anonymiser", "../anonymiser.py")
+import anonymiser;
+
+mainPath = "../maildir";
 
 emailFile = open("user_email_map.py", "w");
 emailFile.write("user_email_map = {\n");
 
-for user in os.listdir("../maildir"):
-	userPath = "../maildir/" + user;
+for user in os.listdir(mainPath):
+	userPath = mainPath + "/" + user;
 	userSentPath = userPath + "/sent_items/";
 
 	try:
@@ -24,7 +35,8 @@ for user in os.listdir("../maildir"):
 					break;
 				if line.startswith("From: "):
 					header, sep, email = line.partition(" ");
-					emailFile.write("\t\"" + user + "\": \"" + email + "\",\n");
+					shuffledEmail = anonymiser.shuffleEmailAddress(email, utils.EVERY_COUNT_CHARACTERS, utils.AMOUNT_TO_MOVE_EVERY_CHARACTER);							
+					emailFile.write("\t\"" + user + "\": \"" + shuffledEmail + "\",\n");
 					break;
 
 			break;
@@ -48,7 +60,8 @@ for user in os.listdir("../maildir"):
 						break;
 					if line.startswith("From: "):
 						header, sep, email = line.partition(" ");
-						emailFile.write("\t\"" + user + "\": \"" + email + "\",\n");
+						shuffledEmail = anonymiser.shuffleEmailAddress(email, utils.EVERY_COUNT_CHARACTERS, utils.AMOUNT_TO_MOVE_EVERY_CHARACTER);						
+						emailFile.write("\t\"" + user + "\": \"" + shuffledEmail + "\",\n");
 						break;
 
 				break;

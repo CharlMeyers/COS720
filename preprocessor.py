@@ -161,8 +161,8 @@ def removeBody(infile, shouldRemoveBody):
 
 
 def search_directory(directory, outputDirectory, shouldRemoveBody):	
-	everyCountChar = 5
-	amountToMove = 4
+	everyCountChar = utils.EVERY_COUNT_CHARACTERS
+	amountToMove = utils.AMOUNT_TO_MOVE_EVERY_CHARACTER
 	for root, directories, files in os.walk(directory):
 		outputPath = os.path.join(outputDirectory, root[len(directory)+1:])
 		if not os.path.isdir(outputPath):
