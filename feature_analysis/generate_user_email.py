@@ -4,12 +4,11 @@ def load_src(name, fpath):
     import imp;
     return imp.load_source(name, os.path.join(os.path.dirname(__file__), fpath))
 
-load_src("utils", "../utils.py");
-import utils;
 load_src("anonymiser", "../anonymiser.py")
 import anonymiser;
 
 mainPath = "../maildir";
+mainPath = 'F:/UserData/My Documents/Coding Stuff/maildir'
 
 emailFile = open("user_email_map.py", "w");
 emailFile.write("user_email_map = {\n");
@@ -35,7 +34,7 @@ for user in os.listdir(mainPath):
 					break;
 				if line.startswith("From: "):
 					header, sep, email = line.partition(" ");
-					shuffledEmail = anonymiser.shuffleEmailAddress(email, utils.EVERY_COUNT_CHARACTERS, utils.AMOUNT_TO_MOVE_EVERY_CHARACTER);							
+					shuffledEmail = anonymiser.shuffleEmailAddress(email);							
 					emailFile.write("\t\"" + user + "\": \"" + shuffledEmail + "\",\n");
 					break;
 
@@ -60,7 +59,7 @@ for user in os.listdir(mainPath):
 						break;
 					if line.startswith("From: "):
 						header, sep, email = line.partition(" ");
-						shuffledEmail = anonymiser.shuffleEmailAddress(email, utils.EVERY_COUNT_CHARACTERS, utils.AMOUNT_TO_MOVE_EVERY_CHARACTER);						
+						shuffledEmail = anonymiser.shuffleEmailAddress(email);						
 						emailFile.write("\t\"" + user + "\": \"" + shuffledEmail + "\",\n");
 						break;
 

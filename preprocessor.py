@@ -177,9 +177,8 @@ def search_directory(directory, outputDirectory, shouldRemoveBody):
 					with open(outputFilePath, "w+") as fileToWrite:
 						try:
 							removedBodyFromEmail = removeBody(fileToCopy, shouldRemoveBody)
-							modifiedNamesAndSurnames = anonymiser.anonymiseSenderAndReceiver(removedBodyFromEmail, everyCountChar, amountToMove)
-							anonymisedEmailHeaders = anonymiser.removeUnneededHeaders(modifiedNamesAndSurnames)
-							fileToWrite.writelines(anonymisedEmailHeaders)
+							modifiedNamesAndSurnames = anonymiser.anonymiseSenderAndReceiver(removedBodyFromEmail)							
+							fileToWrite.writelines(modifiedNamesAndSurnames)
 						except Exception:
 							print("Error on ", filePath)
 							traceback.print_exc()

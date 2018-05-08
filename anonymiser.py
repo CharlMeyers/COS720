@@ -1,36 +1,22 @@
-def shiftChar(string, position, amount):
-	result = string
-	stringLength = len(string)
-	if(position < stringLength):
-		charToMove = string[position]
-		positionToMoveTo = position + 1 + amount
-		if(positionToMoveTo > stringLength):
-			positionToMoveTo = stringLength - 1
-		result = string[:position] + string[position+1:positionToMoveTo] + charToMove + string[positionToMoveTo:]
-	return result
+import hashlib
 
+def hashString(string):
+	md5 = hashlib.md5(string.encode())
 
-def shiftString(string, everyCountChar, amountToMove):
-	amountOfCharsInString = int(len(string) / everyCountChar)
-	shiftedString = string.split("\n")[0]
-	for i in range(amountOfCharsInString):
-		shiftCharResult = shiftChar(shiftedString, everyCountChar*(i), amountToMove)
-		shiftedString = shiftCharResult[amountToMove:] + shiftCharResult[:amountToMove] #rotate string
+	return md5.hexdigest()
 
-	return shiftedString
-
-def shuffleEmailAddress(emailAddress, everyCountChar, amountToMove):
+def shuffleEmailAddress(emailAddress):
 	shiftedEmail = ""
 	if emailAddress.find("@") > -1:
 		localPart = emailAddress.split("@")
 		
-		shiftedEmail = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1]
+		shiftedEmail = hashString(localPart[0])	+ "@" + localPart[1]
 	else:
-		shiftedEmail = shiftString(emailAddress, everyCountChar, amountToMove)
+		shiftedEmail = hashString(emailAddress)
 
 	return shiftedEmail
 
-def shuffleHeaderWithXHeader(input, header, xHeader, everyCountChar, amountToMove, excludeHeader=None):
+def shuffleHeaderWithXHeader(input, header, xHeader, excludeHeader=None):
 	result = [i for i in input if header.replace(" ", "").lower() in i.lower() and (True if excludeHeader is None else excludeHeader.replace(" ", "").lower() not in i.lower())]	
 	if len(result) > 1:
 		headerEmailAddressIndexInInput = input.index(result[0])
@@ -46,9 +32,9 @@ def shuffleHeaderWithXHeader(input, header, xHeader, everyCountChar, amountToMov
 				if emailAddress.find("@") > -1:
 					localPart = emailAddresses[i].split("@")
 					
-					shiftedEmail = shiftString(localPart[0], everyCountChar, amountToMove)	+ "@" + localPart[1]
+					shiftedEmail = hashString(localPart[0])	+ "@" + localPart[1]
 				else:
-					shiftedEmail = shiftString(emailAddress, everyCountChar, amountToMove)
+					shiftedEmail = hashString(emailAddress)
 
 				if i != emailAddressesLength - 1:					
 					emailAddresses[i] = shiftedEmail + ", "
@@ -68,20 +54,20 @@ def shuffleHeaderWithXHeader(input, header, xHeader, everyCountChar, amountToMov
 					
 					name = value[:leftAngularBracketPosition-1].lower().replace('\"', '').replace(" ", "").replace("\n", "")
 					email = value[leftAngularBracketPosition+1:].replace("\n", "")
-					shiftedName = '\"' + shiftString(name, everyCountChar, amountToMove) + '\"'
+					shiftedName = '\"' + hashString(name) + '\"'
 
 					if leftAngularBracketPosition > -1:
 						if email.find("@") > -1:
 							localPart = email.split("@")								
-							shiftedEmail = "<" + shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1] + ">"
+							shiftedEmail = "<" + hashString(localPart[0]) + "@" + localPart[1] + ">"
 						else:
-							shiftedEmail = "<" + shiftString(email, everyCountChar, amountToMove) + ">"
+							shiftedEmail = "<" + hashString(email) + ">"
 					else:
 						if email.find("@") > -1:
 							localPart = email.split("@")								
-							shiftedEmail = shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1]
+							shiftedEmail = hashString(localPart[0]) + "@" + localPart[1]
 						else:
-							shiftedEmail = shiftString(email, everyCountChar, amountToMove)
+							shiftedEmail = hashString(email)
 
 					if i != xHeaderValuesLength - 1:
 						xHeaderValues[i] = shiftedName + " " + shiftedEmail + ", "
@@ -100,9 +86,9 @@ def shuffleHeaderWithXHeader(input, header, xHeader, everyCountChar, amountToMov
 
 					if value.find("@") > -1:
 						localPart = value.split("@")
-						shiftedValue = 	shiftString(localPart[0], everyCountChar, amountToMove) + "@" + localPart[1]
+						shiftedValue = 	hashString(localPart[0]) + "@" + localPart[1]
 					else:
-						shiftedValue = shiftString(value, everyCountChar, amountToMove)
+						shiftedValue = hashString(value)
 
 					if i != xHeaderValuesLength - 1:
 						xHeaderValues[i] = shiftedValue + ", "
@@ -119,11 +105,11 @@ def shuffleHeaderWithXHeader(input, header, xHeader, everyCountChar, amountToMov
 	return input
 
 
-def anonymiseSenderAndReceiver(input, everyCountChar, amountToMove):
-	input = shuffleHeaderWithXHeader(input, "From: ", "X-From: ", everyCountChar, amountToMove, "Subject: ")
-	input = shuffleHeaderWithXHeader(input, "To: ", "X-To: ", everyCountChar, amountToMove, "Subject: ")
-	input = shuffleHeaderWithXHeader(input, "Cc: ", "X-cc: ", everyCountChar, amountToMove, "Bcc: ")
-	input = shuffleHeaderWithXHeader(input, "Bcc: ", "X-bcc: ", everyCountChar, amountToMove)	
+def anonymiseSenderAndReceiver(input):
+	input = shuffleHeaderWithXHeader(input, "From: ", "X-From: ", "Subject: ")
+	input = shuffleHeaderWithXHeader(input, "To: ", "X-To: ", "Subject: ")
+	input = shuffleHeaderWithXHeader(input, "Cc: ", "X-cc: ", "Bcc: ")
+	input = shuffleHeaderWithXHeader(input, "Bcc: ", "X-bcc: ")	
 
 	return input
 
