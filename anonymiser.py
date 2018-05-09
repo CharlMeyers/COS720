@@ -1,9 +1,13 @@
 import hashlib
+import re
 
 def hashString(string):
 	md5 = hashlib.md5(string.encode())
 
 	return md5.hexdigest()
+
+def replaceDigit(string):
+	return re.sub(r"(\d[ +]*){6,16}", "0000000000", string)
 
 def shuffleEmailAddress(emailAddress):
 	shiftedEmail = ""

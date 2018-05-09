@@ -10,9 +10,9 @@ def joinSubjectHeaderIntoOneLine(line, handlingHeader, joinedLine, replaceLine):
 	searchLine = line.lower()
 	if handlingHeader == False and searchLine.find("subject:") > -1:
 		handlingHeader = True
-		joinedLine += line.replace("\n", "")
+		joinedLine += anonymiser.replaceDigit(line.replace("\n", ""))
 	elif handlingHeader and (searchLine.find("cc:") == -1 and searchLine.find("mime-version:") == -1):
-		joinedLine += line.replace("\n", "")
+		joinedLine += anonymiser.replaceDigit(line.replace("\n", ""))
 	elif handlingHeader:
 		if joinedLine.find("\n") == -1:
 			joinedLine += "\n"
