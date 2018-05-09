@@ -1,6 +1,7 @@
 import os;
 import re;
-import date_calculations;				
+import date_calculations
+import zipfile	
 
 rootEmailDir = "../maildir";
 foldersToExplore = [{"user": "", "path": rootEmailDir}];
@@ -57,6 +58,13 @@ for i, emailMap in enumerate(filesToProcess):
 		else:
 			if headerInLine == "Date":
 				csvLine[headerInLine] = date_calculations.convertTimestamp(valueInLine.replace("\"", "").replace(",", "+").strip());
+			elif headerInLine == "Message-ID":
+				beforeAt, at, afterAt = line.partition("@");
+
+				if at == "":
+					afterAt = beforeAt + ">";
+
+				csvLine[headerInLine] = afterAt[:-1];
 			else:
 				csvLine[headerInLine] = valueInLine.replace("\"", "").replace(",", "+").strip();
 
@@ -83,23 +91,52 @@ for i, emailMap in enumerate(filesToProcess):
 print("\rReading emails progress: " + str(round(i / len(filesToProcess) * 100, 2)) + "%", end='', flush=True);
 print("\nCompiling CSV file...", end='', flush=True);
 csvFile = open("output/cleaned_data.csv", "w");
+csvFileSmall = open("output/cleaned_data_small.csv", "w");
 line = "";
 
 for header in headers:
  	line += header + ",";
 
 csvFile.write(line[:-1] + "\n");
+csvFileSmall.write(line[:-1] + "\n");
 
-for contentMap in csvFileContent:
+for i, contentMap in enumerate(csvFileContent):
 	line = "";
+	skipRow = False;
 
 	for header in headers:
 		try:
+			if header == "To" and contentMap[header] == "":
+				skipRow = True;
+
 			line += contentMap[header] + ",";
 		except KeyError:
 			line += ",";
 
-	csvFile.write(line[:-1] + "\n");
+	if skipRow == False:
+		csvFile.write(line[:-1] + "\n");
+
+		if i < 100:
+			csvFileSmall.write(line[:-1] + "\n");
 
 csvFile.close();
+csvFileSmall.close();
+print(" Done");
+print("Zipping large file...", end='', flush=True);
+zf = zipfile.ZipFile("output/cleaned_data.zip", mode="w");
+
+try:
+	zf.write("output/cleaned_data.csv", zipfile.ZIP_DEFLATED);
+finally:
+	zf.close();
+
+print(" Done");
+print("Zipping small file...", end='', flush=True);
+zf = zipfile.ZipFile("output/cleaned_data_small.zip", mode="w");
+
+try:
+	zf.write("output/cleaned_data_small.csv", zipfile.ZIP_DEFLATED);
+finally:
+	zf.close();
+
 print(" Done");

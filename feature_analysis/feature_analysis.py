@@ -18,6 +18,8 @@ mimeTypeSheet = excelFile.add_worksheet("MimeType");
 mimeTypeSheet.write_row("A1", ["Type", "Count"]);
 transferEncodingSheet = excelFile.add_worksheet("TransferEncoding");
 transferEncodingSheet.write_row("A1", ["Type", "Count"]);
+messageIdSheet = excelFile.add_worksheet("MessageID");
+messageIdSheet.write_row("A1", ["Type", "Count"]);
 timeArray = [];
 timeArray.append(("0:00:00", 0));
 timeArray.append(("1:00:00", 0));
@@ -48,6 +50,7 @@ mimeTypeArray = [];
 transferEncodingArray = [];
 sentCountArray = [];
 receivedCountArray = [];
+messageIdArray = [];
 
 for user in user_email_map.user_array:
 	sentCountArray.append((user, 0));
@@ -124,6 +127,18 @@ for r, csvRecord in enumerate(csvLines):
 
 	if found == False:
 		transferEncodingArray.append((csvMap["Content-Transfer-Encoding"],1));
+
+	# Process Message-ID
+	found = False;
+
+	for d, messageId in enumerate(messageIdArray):
+		if messageId[0] == csvMap["Message-ID"]:
+			messageIdArray[d] = (messageIdArray[d][0], messageIdArray[d][1] + 1);
+			found = True;
+			break;
+
+	if found == False:
+		messageIdArray.append((csvMap["Message-ID"],1));
 		
 	if r % 1000 == 0:
 		print("\rReading emails progress: " + str(round((r + 1) / len(csvLines) * 100, 2)) + "%", end='', flush=True);
@@ -154,6 +169,10 @@ for m, mimeTypeTuple in enumerate(mimeTypeArray):
 # Write number of each Content-Transfer-Encoding to sheet
 for e, transferEncodingTuple in enumerate(transferEncodingArray):
 	transferEncodingSheet.write_row("A" + str(e + 2), [transferEncodingTuple[0], transferEncodingTuple[1]]);
+
+# Write number of each message-id to sheet
+for d, messageIdTuple in enumerate(messageIdArray):
+	messageIdSheet.write_row("A" + str(d + 2), [messageIdTuple[0], messageIdTuple[1]]);
 
 # Write some forumals
 statsSheet.write_row("A1", ["Max Sent", "=MAX(SentEmailCounts!$B$2:$B$" + str(len(user_email_map.user_array) + 1) + ")"]);
@@ -348,6 +367,37 @@ chart.set_y_axis({
 	}
 });
 graphSheet.insert_chart("A151", chart, {"x_offset": 25, "y_offset": 10, "x_scale": 2, "y_scale": 2});
+
+#Create message-id pie chart chart
+chart = excelFile.add_chart({"type": "pie"});
+chart.add_series({
+    "name":       "=MessageID!$B$1",
+    "categories": "=MessageID!$A$2:$A$" + str(d + 2),
+    "values":     "=MessageID!$B$2:$B$" + str(d + 2),
+});
+
+chart.set_title ({
+	"name": "Number of emails of each Message-ID",
+    "name_font": {
+    	"size": 24, 
+    	"bold": True
+	}
+});
+chart.set_x_axis({
+	"name": "Message-ID",
+    "name_font": {
+    	"size": 18, 
+    	"bold": True
+	}
+});
+chart.set_y_axis({
+	"name": "Count",
+    "name_font": {
+    	"size": 18, 
+    	"bold": True
+	}
+});
+graphSheet.insert_chart("A181", chart, {"x_offset": 25, "y_offset": 10, "x_scale": 2, "y_scale": 2});
 
 excelFile.close();
 print(" Done");
