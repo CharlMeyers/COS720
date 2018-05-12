@@ -56,7 +56,7 @@ for user in user_email_map.user_array:
 	sentCountArray.append((user, 0));
 	receivedCountArray.append((user, 0));
 
-csvFile = open("output/cleaned_data.csv", "r");
+csvFile = open("../clean_data/output/cleaned_data.csv", "r");
 print("Reading CSV lines...", end='', flush=True);
 csvLines = csvFile.readlines();
 print(" Done\nEmails found: " + str(len(csvLines)));
