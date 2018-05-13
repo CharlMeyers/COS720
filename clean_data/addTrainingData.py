@@ -4,11 +4,11 @@ import zipfile
 small_file = "F:/UserData/My Documents/Coding Stuff/COS720/output/cleaned_data_numerical/output/cleaned_data_numerical_small.csv"
 big_file = "F:/UserData/My Documents/Coding Stuff/COS720/output/cleaned_data_numerical/output/cleaned_data_numerical.csv"
 
-small_training_file = "F:/UserData/My Documents/Coding Stuff/COS720/output/cleaned_data_numerical/output/cleaned_data_numerical-training_small.csv"
-big_training_file = "F:/UserData/My Documents/Coding Stuff/COS720/output/cleaned_data_numerical/output/cleaned_data_numerical_training.csv"
+small_training_file = "output/cleaned_data_numerical-training_small.csv"
+big_training_file = "output/cleaned_data_numerical_training.csv"
 
-small_zip_file = "F:/UserData/OneDrive/UniversiteitProjekte/COS720/Assignment/COS720/clean_data/output/cleaned_data_numerical-training_small.zip"
-big_zip_file = "F:/UserData/OneDrive/UniversiteitProjekte/COS720/Assignment/COS720/clean_data/output/cleaned_data_numerical_training.zip"
+small_zip_file = "output/cleaned_data_numerical-training_small.zip"
+big_zip_file = "output/cleaned_data_numerical_training.zip"
 
 def addAndWriteTrainingData(inFile, outFile):
     print("Adding training data to file....")
@@ -17,53 +17,59 @@ def addAndWriteTrainingData(inFile, outFile):
         data = [r for r in reader]
         dataLength = len(data)
         for index in range(dataLength):
-            fromIP = data[index]['From-IP']        
             subject = data[index]['Subject']
             to = int(data[index]['X-To'])
             cc = int(data[index]['X-cc'])
             bcc = int(data[index]['X-bcc'])
 
-            moreBccThanTo = False
-            moreBccThanCc = False
-            validIP = False
-            possibleSpamSubject = False
+            moreBccThanTo = round((cc / bcc) * 100, 2)
+            moreBccThanCc = round((to / bcc) * 100, 2)
+            moreTo = False
+            moreCc = False
 
-            if fromIP.replace(".", "").isdigit():
-                validIP = True
+            subjectLength = len(subject)
+            countSpecialCharactersInSubject = subject.count("!") + subject.count("$")
+            countUpperCaseCharactersInSubject = 0
 
-            if round((cc / bcc) * 100, 2) < 30.00:
-                moreBccThanCc = True
+            for s in subject:
+                if(s.isupper()):
+                    countUpperCaseCharactersInSubject += 1
 
-            if round((to / bcc) * 100, 2) < 30.00:
-                moreBccThanTo = True
+            containsSpecialChars = False
+            upperWholeOfSubject = False
 
-            if subject.find("!") > -1:
-                possibleSpamSubject = True
+            if moreBccThanCc < 30.00:                
+                moreCc = True
 
-            if subject.find("$") > -1:
-                possibleSpamSubject = True
+            if moreBccThanTo < 30.00:
+                moreTo = True
 
-            if subject.isupper():
-                possibleSpamSubject = True
+            if countSpecialCharactersInSubject >= 1:
+                containsSpecialChars = True
 
-            data[index]['Valid-IP'] = validIP
+            if subjectLength != 0 and countUpperCaseCharactersInSubject == subjectLength:                      
+                upperWholeOfSubject = True            
 
-            possibleSpam = moreBccThanCc or moreBccThanTo or not validIP or possibleSpamSubject
+            possibleSpam = moreCc or moreTo or containsSpecialChars or upperWholeOfSubject
 
-            data[index]['Valid-IP'] = validIP
-            data[index]['Possibly-Spam-Subject'] = possibleSpamSubject
-            data[index]['Bcc-Larger-Than-CC'] = moreBccThanCc
-            data[index]['Bcc-Larger-Than-To'] = moreBccThanTo
+            data[index]['Special-Chars-Subject'] = countSpecialCharactersInSubject                        
+            data[index]['Count-Uppercase-Chars-Subject'] = countUpperCaseCharactersInSubject
+            data[index]['Cc-Less-Than-Bcc'] = moreBccThanCc
+            data[index]['To-Less-Than-Bcc'] = moreBccThanTo
+            data[index]['Cc-Less'] = moreCc
+            data[index]['To-Less'] = moreTo
+            data[index]['Subject-Length'] = subjectLength
+            data[index]['Possibly-Malicious-Spam'] = containsSpecialChars or upperWholeOfSubject
             data[index]['Possibly-Malicious'] = possibleSpam
 
         csvKeys = data[0].keys()
 
         print("Writing results to file...")
-        with open(outFile, "w", newline='') as trainingCSv:    
+        with open(outFile, "w", newline='') as trainingCSv:
             writer = csv.DictWriter(trainingCSv, csvKeys)
             writer.writeheader()
             writer.writerows(data)
-        
+
         print('Done\n')
 
 print('Adding training data to small sample...\n')
