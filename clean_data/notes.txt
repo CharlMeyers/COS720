@@ -7,3 +7,4 @@ All quotes and commas asre stripped from all the values.
 Stripped lines with no "To" field.
 Stripped the ID part of the message ID and only keep the server.
 Added auto-zip functionality.
+Emails that didn't have a from server had @enron.com added to them.
