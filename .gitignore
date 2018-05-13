@@ -2,3 +2,6 @@ __pycache__
 *.pyc
 
 .idea
+clean_data/output/*.csv
+header_injector/output/*.csv
+feature_engineering/output/*.csv
