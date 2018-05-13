@@ -7,6 +7,7 @@
 \usepackage{wrapfig}
 \usepackage{hyperref}
 \usepackage[margin=2cm]{geometry}
+\usepackage[Q=yes,pverb-linebreak=no]{examplep}
 
 \date{\today}
 
@@ -48,11 +49,99 @@
 		
 	\section{Data Acquisition}
 		\paragraph\indent
-		
+		On March 26, 2003 one of the most widely used email corpuses was published on the Internet by the Federal Energy Regulatory Commission (FERC) \cite{leber_2013}. This was of course the Enron email corpus \cite{cmu_2015}. There were two reasons why this data was chosen for this project, the first is due to this data set's wide and successful use in previous research, and the second reason is due to the massive number of ``real-world'' emails that it provides.
 		
 	\section{Data Cleaning}
 		\paragraph\indent
+		There were multiple steps that played a role in the data cleaning process. The main purpose of this step was to place the data in a CSV format that could be used for further analysis. These steps will be discussed in the next sections.
 		
+		\subsection{Email Format}
+			\paragraph\indent
+			Due to previous research and individuals like Melinda Gervasio \cite{cmu_2015} the emails have been clean up drastically and reformatted to follow a more standard layout. The emails start out with all the headers and followed by the email body. These two are separated by a blank line. Since we are only interested in the email headers, we will focus on this section more extensively. The general header layout consisted of the header followed by a colon and then the header's value. Occasionally the value spans over multiple lines since a line is not allowed to be more than 998 characters long (although 78 characters is recommended) excluding the CRLF characters \cite{rfc2822}. Any data after the blank line that separated the headers and the body was ignored.
+		
+		\subsection{Data Extraction}
+			\subsubsection{Header Acquisition}
+				\paragraph\indent
+				Each line of the header section of the email was scanned and split by the colon character based on the RFC specification for email layouts \cite{rfc2822}. Any text before the colon is seen as the header key that follows the colon is seen as the header value. As already mentioned, there were cases where the header value wrapped across multiple lines. This is allowed as long as the new line starts with a white space character \cite{rfc2822}. However, there were a few emails that did not start the new line with a white space character. These emails were flagged by the cleaning program and were corrected manually. Header values that spanned across multiple lines were combined into a single line.
+				
+				\paragraph\indent
+				The headers (with descriptions) that were found in the complete set of emails were:
+				\begin{itemize}
+					\item Received1 (fabricated header)\\
+							Contained the address of the receiving server. Example: \textit{by 184.168.221.41 with SMTP id hUFS1mAtWD54sRsA;  Mon, 14 May 2001 16:39:00 -0700 (PDT)}.
+					\item Received2 (fabricated header)\\
+							Contained the address of the sending server as observed by the receiving server. Example: \textit{from enron.com (enron.com [184.168.221.41]) by mx.google.com with ESMTPS id IA15iqgM3n4tZP; Mon, 14 May 2001 16:39:00 -0700 (PDT) (version=TLS1\_2 cipher=AES128-GCM-SHA256 bits=128/128);  Mon, 14 May 2001 16:39:00 -0700 (PDT)}.
+					\item X-Mailer (fabricated header)\\
+							This field was left blank in the emails but usually contain the email program that was used to compose the program \cite{martinez_xmailer}.
+					\item Message-ID\\
+							The message ID of an email consists of a global unique ID to identify this email. It usually, although not in the case of the Enron emails, ends with the domain of the sending server. Example: \textit{<18782981.1075855378110.JavaMail.evans@thyme>}.
+					\item Date\\
+							The time stamp the email was sent. This time stamp has a very specific format which is: Day of the week, Day Month Year Hour:Minute:Second +/-Time zone offset. Example: \textit{Mon, 14 May 2001 16:39:00 -0700 (PDT)}
+					\item From\\
+							The sender email address. Example: \textit{piet.pompies@enron.com}.
+					\item To\\
+							A list of one or more recipient email addresses separated by a comma. Example: \textit{johan.kotze@enron.com, koos.opperman@enron.com}.
+					\item Subject\\
+						The subject of the email as specified by the sender.
+					\item Mime-Version\\
+						Multipurpose Internet Mail Extensions (MIME) is a header that indicates that the message has been formatted in accordance with the MIME format standard \cite{rfc2045}. At the moment there is only one MIME version (version 1.0) \cite{rfc2045} and there hasn't been a need to call for a new official version.
+					\item Content-Type\\
+						Also referred to as the media type \cite{rfc2045}, and is used to allow the received to choose the correct mechanism to display the email to the user. The default for this field is \textit{text/plain; charset=us-ascii} \cite{rfc2045}.
+					\item Content-Transfer-Encoding\\
+						The primary purpose of this field is to allow the receiver to decode binary data that was converted to a text format. This field specifies how this data was encoded \cite{rfc2045}. The default value is \textit{7bit} \cite{rfc2045}.
+					\item X-From\\
+						As stated in \cite{rfc822} any header starting with an ``X'' is considered application specific and will not be overwritten by a future standard. This has since been deprecated \cite{rfc6648} but only after the Enron emails have been sent.\\
+						In our data set this field contained most often contained the sender's name and surname, their email address and/or other random information. Example: \textit{Mass, Frans </O=ENRON/OU=NA/CN=RECIPIENTS/CN=FSAYRE>}.
+					\item X-To\\
+						Similar to the X-From header.
+					\item X-cc\\
+						Similar to the X-From header.
+					\item X-bcc\\
+						Similar to the X-From header.
+					\item X-Folder\\
+						This header appears to store the folder the email was placed in, in the user's email program.
+					\item X-Origin\\
+						Most often this field contained the sender's surname and firstname's initial. Example: \textit{Mass-F}
+					\item X-FileName\\
+						The Note Storage Facility (NSF) or Outlook Personal Folders (PST) file name.
+					\item Cc\\
+							A list of one or more recipient email addresses of individuals that was added to the carbon copy list separated by a comma. Example: \textit{johan.kotze@enron.com, koos.opperman@enron.com}.
+					\item Bcc\\
+							A list of one or more recipient email addresses of individuals that was added to the blind carbon copy list separated by a comma. Example: \textit{johan.kotze@enron.com, koos.opperman@enron.com}.
+				\end{itemize}
+				
+			\subsubsection{Removed Emails}
+				\paragraph\indent
+				Complete removal of emails were left as a last resort in order to maintain the large numbers of emails. The only emails that were stripped completely were emails that did not contain a header value for the ``To'' header key. The reason for this is because these emails were seen as draft emails that were not sent out.
+				
+			\subsubsection{Data Preparation}
+				\paragraph\indent
+				Some of the fields were reformatted in order to provide a simpler data set which would in turn allow for a more successful data mining process. This includes the date field which was reformatted to the yyyy-MM-ddThh:mm:ss format. Missing headers were added with an empty value. Quotes and commas were stripped from the fields to allow CSV compatibility. For the Received1 and Received2 fields, only the IP addresses were extracted of the corresponding servers.\\
+				
+				Some additional data was also gathered from the emails and added as additional fields. This includes:
+				\begin{itemize}
+					\item Message-ID-Server\\
+						If the message ID contains a domain name then it is extracted and placed into this field.
+					\item From-IP\\
+						The actual IP address were requested for the sending email address's domain. Some domains' IP addresses could not be retrieved and in this case the domain name was placed in this field.
+					\item File-size\\
+						The size of the email in bytes.
+				\end{itemize}
+				
+			\subsubsection{Data Conversion}
+				\paragraph\indent
+				In order to allow the machine learning phase to be able to more easily mine the data, the text field were converted to numerical representation and a mapping file (for our reference) was maintained. This includes the following fields:
+				\begin{itemize}
+					\item Message-ID-Server
+					\item Mime-Version
+					\item Content-Type
+					\item Content-Transfer-Encoding
+				\end{itemize}
+				
+				Other fields had some aggregation performed in order to get a numerical value. Like the recipient fields (listed below) were converted the number of recipients in that fields. For instance, a ``To'' field that contained 3 recipient email addresses has it's value replaced by the number 3.\\
+				
+				We thus maintained two copies of the data, and either could be used by any phase of the project. The first copy is the original string formatted data and the second is the numerical data.
+
 		
 	\section{Exploratory Data Analysis}
 		\paragraph\indent
