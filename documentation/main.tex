@@ -45,7 +45,7 @@
 	
 	\section{Introduction}
 		\paragraph\indent
-		
+		Spam and malicious emails is a world wide problem wasting billions of dollars every year \cite{castro2013}. Since 90\% of all email traffic is spam, a lot of network bandwidth, processing power, storage and electricity goes toward the processing and transportation of these emails \cite{castro2013}. Due to this large amount of unwanted email traffic workers waste time everyday filtering these out. Not only that, but malicious emails could cause massive financial loss to an individual and/or company. For these reasons there have been numerous studies done to identify and filter out these emails. One such approach is header based spam filtering \cite{al2012identifying}. This approach requires the analysis of large datasets in order to accurately classify emails \cite{al2012identifying}.
 		
 	\section{Data Acquisition}
 		\paragraph\indent
@@ -91,7 +91,7 @@
 						The primary purpose of this field is to allow the receiver to decode binary data that was converted to a text format. This field specifies how this data was encoded \cite{rfc2045}. The default value is \textit{7bit} \cite{rfc2045}.
 					\item X-From\\
 						As stated in \cite{rfc822} any header starting with an ``X'' is considered application specific and will not be overwritten by a future standard. This has since been deprecated \cite{rfc6648} but only after the Enron emails have been sent.\\
-						In our data set this field contained most often contained the sender's name and surname, their email address and/or other random information. Example: \textit{Mass, Frans </O=ENRON/OU=NA/CN=RECIPIENTS/CN=FSAYRE>}.
+						In our data set this field contained most often contained the sender's name and surname, their email address and/or other random information. Example: \sloppy{\textit{Mass, Frans </O=ENRON/OU=NA/CN=RECIPIENTS/CN=FSAYRE>}}.
 					\item X-To\\
 						Similar to the X-From header.
 					\item X-cc\\
@@ -141,11 +141,79 @@
 				Other fields had some aggregation performed in order to get a numerical value. Like the recipient fields (listed below) were converted the number of recipients in that fields. For instance, a ``To'' field that contained 3 recipient email addresses has it's value replaced by the number 3.\\
 				
 				We thus maintained two copies of the data, and either could be used by any phase of the project. The first copy is the original string formatted data and the second is the numerical data.
-
 		
 	\section{Exploratory Data Analysis}
 		\paragraph\indent
+		In order to gain a more in depth understanding of how the data looks we performed some Exploratory Data Analysis (EDA). EDA is a method used in research to gain knowledge of the data that could in turn generate ideas and provide a possible path of investigation to follow \cite{cox2017exploratory}.\\
 		
+		A script was written to extract data from the cleaned data file and draw some Excel graphs to provide a visual mechanism of interpreting the data. The following analysis was performed as part of the EDA:
+		\begin{itemize}
+			\item Number of emails sent per user (figure \ref{fig:emails_sent})
+			\item Number of emails received per user (figure \ref{fig:emails_received})
+			\item Number of emails sent during each hour of the day (figure \ref{fig:time_sent})
+			\item What content types were used (figure \ref{fig:content_type})
+			\item What MIME-Types were used (figure \ref{fig:mime_type})
+			\item What transfer encodings were used (figure \ref{fig:transfer_encoding})
+			\item What domains were listed as part of the message ID (figure \ref{fig:message_id})
+			\item Some descriptive statistics were also performed to indicate what the max, min and average number of emails per user was (figure \ref{fig:descriptive_statistics})
+		\end{itemize}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=\textwidth]{emails_sent.png}
+			\caption{Number of emails sent per user.}
+			\label{fig:emails_sent}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=\textwidth]{emails_received.png}
+			\caption{Number of emails received per user.}
+			\label{fig:emails_received}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=\textwidth]{time_sent.png}
+			\caption{Time of the day emails were sent/received.}
+			\label{fig:time_sent}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.6\textwidth]{content_type.png}
+			\caption{Content type used in emails.}
+			\label{fig:content_type}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.6\textwidth]{mime_type.png}
+			\caption{MIME type used in emails.}
+			\label{fig:mime_type}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.6\textwidth]{transfer_encoding.png}
+			\caption{Transfer encoding used in emails.}
+			\label{fig:transfer_encoding}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.6\textwidth]{message_id.png}
+			\caption{Message ID domain used in the emails.}
+			\label{fig:message_id}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=0.6\textwidth]{descriptive_statistics.png}
+			\caption{Descriptive statistics on sent/received emails.}
+			\label{fig:descriptive_statistics}
+		\end{figure}
+ 
 		
 	\section{Attribute Identification}
 		\paragraph\indent
