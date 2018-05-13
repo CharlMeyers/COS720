@@ -160,19 +160,24 @@ def removeBody(infile, shouldRemoveBody):
 	return emailHeaderLines
 
 
-def search_directory(directory, outputDirectory, shouldRemoveBody):	
-	everyCountChar = utils.EVERY_COUNT_CHARACTERS
-	amountToMove = utils.AMOUNT_TO_MOVE_EVERY_CHARACTER
+def search_directory(directory, outputDirectory, shouldRemoveBody):
+	countFiles = 0
+	currentFileIndex = 0
+	print("Discovering files...")
+	for root, directories, files in os.walk(directory):
+		countFiles += len(files)
+	
 	for root, directories, files in os.walk(directory):
 		outputPath = os.path.join(outputDirectory, root[len(directory)+1:])
 		if not os.path.isdir(outputPath):
 			os.mkdir(outputPath)
 
-		utils.log("Anonymising ", root)
+		utils.log("\rAnonymising " + root + " " + str(round((currentFileIndex/countFiles)*100, 2)) + "%")		
 		for file in os.listdir(root):
 			filePath = os.path.join(root,file)
 			outputFilePath = os.path.join(outputPath,file)
 			if os.path.isfile(filePath):
+				currentFileIndex += 1
 				with open(filePath, "r") as fileToCopy:
 					with open(outputFilePath, "w+") as fileToWrite:
 						try:
@@ -183,6 +188,8 @@ def search_directory(directory, outputDirectory, shouldRemoveBody):
 							print("Error on ", filePath)
 							traceback.print_exc()
 							sys.exit(1)
+	
+	print("Done")
 
 
-search_directory('F:/UserData/My Documents/Coding Stuff/maildir', 'F:/UserData/My Documents/Coding Stuff/anonymisedMail', True)
+search_directory('F:/UserData/My Documents/Coding Stuff/COS720/maildir/allen-p', 'F:/UserData/My Documents/Coding Stuff/COS720/anon', True)
