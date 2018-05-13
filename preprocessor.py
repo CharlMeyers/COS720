@@ -182,6 +182,8 @@ def search_directory(directory, outputDirectory, shouldRemoveBody):
 					with open(outputFilePath, "w+") as fileToWrite:
 						try:
 							removedBodyFromEmail = removeBody(fileToCopy, shouldRemoveBody)
+							fileSize = os.path.getsize(filePath)
+							removedBodyFromEmail.append("X-Filesize: " + str(fileSize))
 							modifiedNamesAndSurnames = anonymiser.anonymiseSenderAndReceiver(removedBodyFromEmail)							
 							fileToWrite.writelines(modifiedNamesAndSurnames)
 						except Exception:
@@ -189,7 +191,7 @@ def search_directory(directory, outputDirectory, shouldRemoveBody):
 							traceback.print_exc()
 							sys.exit(1)
 	
-	print("Done")
+	print("\nDone")
 
 
-search_directory('F:/UserData/My Documents/Coding Stuff/COS720/maildir/allen-p', 'F:/UserData/My Documents/Coding Stuff/COS720/anon', True)
+search_directory('F:/UserData/My Documents/Coding Stuff/COS720/maildir', 'F:/UserData/My Documents/Coding Stuff/COS720/anonymised', True)
