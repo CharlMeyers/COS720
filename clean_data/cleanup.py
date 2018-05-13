@@ -149,6 +149,8 @@ csvFile = open("output/cleaned_data.csv", "w");
 csvFileSmall = open("output/cleaned_data_small.csv", "w");
 line = "";
 
+headers.append("File-size");
+
 for header in headers:
  	line += header + ",";
 
@@ -164,7 +166,7 @@ for i, contentMap in enumerate(csvFileContent):
 			if header == "To" and contentMap[header] == "":
 				skipRow = True;
 
-			line += contentMap[header] + ",";
+			line += str(contentMap[header]) + ",";
 		except KeyError:
 			line += ",";
 
