@@ -124,6 +124,16 @@ def removeBody(infile, shouldRemoveBody):
 			if replaceSubjectLine:
 				joinSubjectHeaderToString(emailFileLines, joinedSubjectLine)
 				replaceSubjectLine = False
+
+			fromHeaderList, handlingFromHeader = joinEmailHeaderList(line, handlingFromHeader, fromHeaderList, "from:", "to:", "subject", "subject:")
+			toHeaderList, handlingToHeader = joinEmailHeaderList(line, handlingToHeader, toHeaderList, "to:", "subject:", "subject:")
+			ccHeaderList, handlingCcHeader = joinEmailHeaderList(line, handlingCcHeader, ccHeaderList, "cc:", "mime-version:", "bcc:")
+			bccHeaderList, handlingBccHeader = joinEmailHeaderList(line, handlingBccHeader, bccHeaderList, "bcc:", "x-from:", "x-bcc:")
+
+			xfromHeaderList, handlingXFromHeader = joinEmailHeaderList(line, handlingXFromHeader, xfromHeaderList, "x-from:", "x-to:")
+			xtoHeaderList, handlingXToHeader = joinEmailHeaderList(line, handlingXToHeader, xtoHeaderList, "x-to:", "x-cc:")
+			xccHeaderList, handlingXCcHeader = joinEmailHeaderList(line, handlingXCcHeader, xccHeaderList, "x-cc:", "x-bcc:")
+			xbccHeaderList, handlingXBccHeader = joinEmailHeaderList(line, handlingXBccHeader, xbccHeaderList, "x-bcc:", "x-folder:")
 		elif not shouldRemoveBody:
 			emailFileLines.append(line)
 
@@ -131,6 +141,16 @@ def removeBody(infile, shouldRemoveBody):
 			if replaceSubjectLine:
 				joinSubjectHeaderToString(emailFileLines, joinedSubjectLine)
 				replaceSubjectLine = False
+
+			fromHeaderList, handlingFromHeader = joinEmailHeaderList(line, handlingFromHeader, fromHeaderList, "from:", "to:", "subject", "subject:")
+			toHeaderList, handlingToHeader = joinEmailHeaderList(line, handlingToHeader, toHeaderList, "to:", "subject:", "subject:")
+			ccHeaderList, handlingCcHeader = joinEmailHeaderList(line, handlingCcHeader, ccHeaderList, "cc:", "mime-version:", "bcc:")
+			bccHeaderList, handlingBccHeader = joinEmailHeaderList(line, handlingBccHeader, bccHeaderList, "bcc:", "x-from:", "x-bcc:")
+
+			xfromHeaderList, handlingXFromHeader = joinEmailHeaderList(line, handlingXFromHeader, xfromHeaderList, "x-from:", "x-to:")
+			xtoHeaderList, handlingXToHeader = joinEmailHeaderList(line, handlingXToHeader, xtoHeaderList, "x-to:", "x-cc:")
+			xccHeaderList, handlingXCcHeader = joinEmailHeaderList(line, handlingXCcHeader, xccHeaderList, "x-cc:", "x-bcc:")
+			xbccHeaderList, handlingXBccHeader = joinEmailHeaderList(line, handlingXBccHeader, xbccHeaderList, "x-bcc:", "x-folder:")
 		else:
 			emailFileLines.append(line)
 			break
@@ -138,15 +158,7 @@ def removeBody(infile, shouldRemoveBody):
 	for line in emailFileLines:				
 		emailHeaderLines.append(line)
 
-		fromHeaderList, handlingFromHeader = joinEmailHeaderList(line, handlingFromHeader, fromHeaderList, "from:", "to:", "subject", "subject:")
-		toHeaderList, handlingToHeader = joinEmailHeaderList(line, handlingToHeader, toHeaderList, "to:", "subject:", "subject:")
-		ccHeaderList, handlingCcHeader = joinEmailHeaderList(line, handlingCcHeader, ccHeaderList, "cc:", "mime-version:", "bcc:")
-		bccHeaderList, handlingBccHeader = joinEmailHeaderList(line, handlingBccHeader, bccHeaderList, "bcc:", "x-from:", "x-bcc:")
-
-		xfromHeaderList, handlingXFromHeader = joinEmailHeaderList(line, handlingXFromHeader, xfromHeaderList, "x-from:", "x-to:")
-		xtoHeaderList, handlingXToHeader = joinEmailHeaderList(line, handlingXToHeader, xtoHeaderList, "x-to:", "x-cc:")
-		xccHeaderList, handlingXCcHeader = joinEmailHeaderList(line, handlingXCcHeader, xccHeaderList, "x-cc:", "x-bcc:")
-		xbccHeaderList, handlingXBccHeader = joinEmailHeaderList(line, handlingXBccHeader, xbccHeaderList, "x-bcc:", "x-folder:")		
+			
 
 	joinEmailHeaderListsToString(emailHeaderLines, fromHeaderList, "from:", "to:", "subject:", "subject:")
 	joinEmailHeaderListsToString(emailHeaderLines, toHeaderList, "to:", "subject:", "subject:")
