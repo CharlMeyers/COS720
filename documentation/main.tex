@@ -28,7 +28,7 @@
 				\centering
 				\begin{tabular}{ccc}
 					Armand Maree & Charl Meyers & Marc Antel \\
-					120 178 00   & XXXXXXXX     & XXXXXXXX  
+					120 178 00   & 14024633     & 12026973  
 				\end{tabular}
 			\end{table}
 		\end{center}
@@ -217,30 +217,195 @@
 		
 	\section{Attribute Identification}
 		\paragraph\indent
+            After analyzing the results from the EDA phase and a more in-depth understanding of the ``landscape'' of the data was obtained we performed attribute identification. This involved picking certain attributes that could (after some potential remodeling) be used by the machine learning tools to be able to more accurately classify the data.\\
+        
+        The following attributes of the headers were identified, which would potentially aid in detecting abnormal or malicious emails. \cite{Karlapalem2017} \cite{Faulkner2016} 
+        
+        \begin{itemize}
+					\item Received1\\
+							Can be used to identify if the receiving server has a malicious IP address by using a predefined list of malicious blacklisted IP addresses.
+					\item Received2\\
+							Can be used to identify if the sending server has a malicious IP address by using a predefined list of malicious blacklisted IP addresses.
+					\item Message-ID\\
+							In the Enron emails the domain of the message ID do not match the sender's email address domain. It is suspected that this was changed during the clean up of previous research since the two usually matches. Therefore, we did not utilize this technique ad only focuses on whether the domain specified is malicious or not.
+					\item From\\
+							The from field will be used to check if it is in anyway suspicious, or has any obvious indicators of a fabrication. An example of this would be a domain in the email address that is similar to a legitimate domain, like ``claims@netbank.co.za'' instead of ``claims@nedbank.co.za''. Unfortunately, due to time constraints this was omitted from our tests.
+					\item To\\
+							Mass spam and malicious emails often contain a large amount of recipients. This field can thus be used to check the number of addresses in the "To" field.
+					\item Subject\\
+						The Subject can be used to detect phishing emails based on the presence of certain characteristics, like the presence of special characters. 
+					\item X-To\\
+						The X-To field can be used similar to the To field, to check how many other recipients there are to that email.
+					\item X-cc\\
+						The X-cc field can be used similar to the To field, to check how many other recipients there are to that email.
+					\item X-bcc\\
+						The X-bcc field can be used similar to the To field, to check how many other recipients there are to that email.
+					\item Cc\\
+							The Cc field can be used similar to the To field, to check how many other recipients there are to that email.
+					\item Bcc\\
+							The Bcc field can be used similar to the To field, to check how many other recipients there are to that email.
+				\end{itemize}
 		
 		
 	\section{Feature Engineering}
 		\paragraph\indent
-		
+		Feature Engineering was done by using the attributes identified above and processing them into values that can be interpretable for machine learning, as well as useful in detecting possible malicious emails.\cite{Karlapalem2017} \cite{Faulkner2016} \cite{Al-jarrah2012}
+        
+        \begin{itemize}
+					\item To\\
+							This gives the number of ``To'' contacts in the email.
+					\item X-To\\
+							This gives the number of ``X-To'' contacts in the email.
+					\item X-cc\\
+							This gives the number of ``X-cc'' contacts in the email.
+					\item X-bcc\\
+							This gives the number of ``X-bcc'' contacts in the email.
+					\item Cc\\
+							This gives the number of ``Cc'' contacts in the email.
+					\item Bcc\\
+							This field gives the number of ``Bcc'' contacts in the email.
+					\item Possibly-Spam-Subject\\
+						The Possibly-Spam-Subject is set to true if the subject is found to have characteristics of Spam mail.
+					\item Bcc-Larger-Than-CC\\
+						This field is a boolean value which is set to true if the number Bcc contacts is larger than the contacts found in the CC field. Otherwise it's set to false.
+					\item Bcc-Larger-Than-To\\
+						This field is a boolean value which is set to true if the number Bcc contacts is larger than the contacts found in the To field. Otherwise it's set to false.
+					\item Blacklisted-IP-Address\\
+							The Blacklisted-IP-Address field is a boolean which is set to true if the IP addresses found in the Received fields or in the From-IP field, matches an IP address in the blacklist of known servers found to be used for malicious emails.
+                    \item Special-Chars-Subject\\
+                    		The Special-Chars-Subject is a count of special characters such as ``\$' and ``!' in the subject line.
+                    \item Count-Uppercase-Chars-Subject\\
+                    		The Count-Uppercase-Chars-Subject is a count of how many characters are uppercase in the subject line.
+                    \item Subject-Length\\
+                    		The Subject-Length is the length of the subject line. Together with Count-Uppercase-Chars-Subject the subject line is checked to see if the entire subject line is capitalized.
+				\end{itemize}
 		
 	\section{Using Machine Learning to Detect Abnormal Behavior}
 		\paragraph\indent
 		
 
-		\subsection{Technique 1}
+		\subsection{Decision tree}
+			\indent\subsubsection{Setup}
 			\paragraph\indent
-			
-
-		\subsection{Technique 2}
+            The following was done to prepare the machine learning system.
+            \begin{itemize}
+              \item Create training dataset\\
+              \begin{itemize}
+                    \item A training dataset with a size of 74 entries was created. 
+                    \item The training dataset consists of non-malicious emails,as well as malicious emails of various nature. 
+                    \item The training dataset is based findings from the feature engineering section, and has an additional boolean field named 'Possibly-Malicious', which is used as the target value for the training set.
+              \end{itemize}  
+              \item Create full dataset\\
+              \begin{itemize}
+                    \item A dataset containing the data of all the emails was created to test the accuracy of the model.
+                    \end{itemize}
+            \end{itemize}
+            \indent\subsubsection{Results and interpretation}
+            \begin{figure}[h]
+              \centering
+              \includegraphics[width=0.6\textwidth]{decision_tree_model.png}
+              \caption{The decision tree model that was generated using the training dataset}
+              \label{fig:decision_tree_model}
+			\end{figure}
 			\paragraph\indent
-			
-		
-	\section{Criminal Profiling}
+            \begin{itemize}
+              \item Interpreting the model\\
+              Figure \ref{fig:decision_tree_model} shows the decision tree model which was generated from the training dataset.
+              Interpreting the model shows us that if Blacklisted-IP-Address is found to be true (>0.5), then the email will be found to be malicious. However, if it is found to be false (<=0.5) it will check the value of Possibly-Spam-Subject. If Possibly-Spam-Subject is true, then emails may also be found malicious. However if it's found to be false, then it moves to the next criteria, by check the values of Bcc. If the value was <=21 then the X-bcc and X-To will be checked. If it was >21 then the Bcc will be checked again as well as the Cc.
+            \end{itemize}
+            \begin{itemize}
+              \item Accuracy results on the full dataset\\
+            	The accuracy yielded after running a prediction on the full dataset was 99.6\%. This is an indication that the model generated from the learning dataset is a good prediction on malicious emails in the full dataset. 
+            \end{itemize}
+            
+            
+		\subsection{Comparing rule induction and Naive Bayes}
+			\paragraph\indent
+			 RapidMiner was used to setup a performance measure between Rule Induction machine learning, Naive Bayes and Decision Tree. The Confusion matrix and ROC of both algorithms are compared.
+            \indent\subsubsection{Setup}           
+            \begin{itemize}
+              \item The data is first preprocessed to get more reliable data\\
+                  \begin{itemize}
+                    \item First a subset of attributes are selected from the results of feature engineering
+                    \item After that any rows with missing data is removed, this results in the dataset being reduced from 517 401 entries to  493 043 entries.
+                  \end{itemize}
+				\item The data is then sent to the machine learning algorithm and the performance is measured
+                	\begin{itemize}
+                		\item First the data is split in two with a ratio of 70\% and 30\%
+                        \item The 70\% gets fed into the machine learning algorithm
+                        \item The prediction column (Possibly-Spam-Subject) is removed from the 30\% dataset for validation
+                        \item The validation dataset is applied to the resulting model from the machine learning algorithm and compared to the input dataset to measure the performance. Figure \ref{fig:rapidminer-model} is an example of how the model looks like in RapidMiner.
+                	\end{itemize}
+            \end{itemize}
+            \begin{figure}[h]
+            	\centering
+                \includegraphics[width=\textwidth]{Model.PNG}
+                \caption{The resulting model in RapidMiner for one of the algorithms}
+                \label{fig:rapidminer-model}
+            \end{figure}
+            
+    	\subsubsection{Results and interpretation}
+        The overall accuracy for rule induction is 96.2\% and Naive Bayes is 99.64\%. Thus far it looks like Naive Bayes is the better algorithm to use between Rule Induction and Naive Bayes. Further investigation is done to prove the previous statement.
+        
+        Looking at the ROC curve between the algorithms in figure \ref{fig:roc} we can see that Rule Induction jumped straight to the top left corner. This indicates that Rule Induction only predicted one outcome for all emails. It seems that Rule Induction did not correctly classify malicious emails. Upon further investigation we look at the confusion matrix for Rule Induction.
+        \begin{figure}[h]
+        	\centering
+            \includegraphics[width=\textwidth]{ROC.PNG}
+            \caption{ROC graph comparing the algorithms}
+            \label{fig:roc}
+        \end{figure}
+        
+        Looking at the confusion matrix of rule induction in figure \ref{fig:rule-induction} the class recall is 100\% for actual value ``false'' yet the algorithm only achieved 96.2\% prediction rate for value ``false'', and the algorithm did not predict true at all. We suspect that the algorithm split the data up in such a way that the validation set had no fields to predict true, or that the algorithm was not suitable to predict malicious emails correctly.
+        \begin{figure}[h]
+        	\centering
+            \includegraphics[width=\textwidth]{Rule-induction-cunfusion-matrix.PNG}
+            \caption{Rule induction confusion matrix}
+            \label{fig:rule-induction}
+        \end{figure}
+        
+        Comparing the ROC curve of Naive Bayes in figure \ref{fig:roc}, the curve for Naive Bayes algorithm looks more realistic. The confusion matrix for Naive Bayes in figure \ref{fig:naive-bayes} also has more realistic prediction accuracies of 99.7\% and 97.01\% for value ``false'' and ``true'' respectively. This may indicate that the selected attributes from the training data may have not stated clear enough rules for rule induction and resulted a bias towards false prediction, causing the rule induction operator to be very inaccurate.
+        
+        The results show that Naive Bayes has more realistic performance measures compared to Rule Induction. Therefore Naive Bayes may be more suitable for training on email header data. Compared to Decision tree it seems like decision tree has higher accuracy and therefore may be the best performing algorithm.
+        \begin{figure}[h]
+        	\centering
+            \includegraphics[width=\textwidth]{Naive-bayes-confusion-matrix.PNG}
+            \caption{Naive Bayes confusion matrix}
+            \label{fig:naive-bayes}
+        \end{figure}               
+            
+	\section{Cyber Criminal Profiling}
 		\paragraph\indent
-		
+		The machine learning models generated above, assisted in creating various cyber criminal profiles.
+        \begin{itemize}
+        	\item Profile A
+            \begin{itemize}
+        		\item This criminal uses an email server with an IP-address that is blacklisted and was immediately detected.
+        	\end{itemize} 
+            \item Profile B
+            \begin{itemize}
+        		\item This criminal was not detected using an email server with an IP-address that is blacklisted.
+                \item However the Subject header was detected as a possible spam-subject.
+        	\end{itemize} 
+            \item Profile C
+            \begin{itemize}
+        		\item This criminal was not detected using an email server with an IP-address that is blacklisted.
+                \item The Criminal's Subject line was not picked up as a spam-subject.
+                \item The Criminal sends the email to a large number of recipients in Bcc, Cc and To fields. 
+        	\end{itemize} 
+        \end{itemize}
+        The differing Profiles indicate that there could be a difference in experience from one cyber criminal to another. With some criminals more experience and able to cover their tracks, or their targets being easier to convince.\cite{Bada2016}
 		
 	\section{Anonymization}
 		\paragraph\indent
+        The following steps were followed in order to anonymize the email databset:
+        \begin{itemize}
+        	\item The process of anonymization starts with removing the email body in an attempt to reduce the chances of personal information leaked that may be contained in an email body.
+            \item Thereafter any 6 to 16 digit numbers in the subject line are masked as ten 0's (0000000000).
+            \item The account part in all the email addresses are hashed using the MD5 hashing algorithm. The reason for hashing the account part of the email addresses is to keep all masked email addresses the same to facilitate cross matching. The domain part of each email is kept as is to facilitate comparing the emails to known malicious email addresses.
+            \item Any extra strings in the X-headers are also hashed as they may contain the full name of the owners of their respective email addresses. This is to protect the identities of the owners of each email address.
+            \item Additional processing is done to put all email lists inline instead of having each email address in a list on it's own line. This is done for easier processing later on.
+            \item The anonymized emails are saved to another folder after they have been anonymized.
+        \end{itemize}         
 		
 		
 	\bibliographystyle{unsrt}
