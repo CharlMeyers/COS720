@@ -1,7 +1,7 @@
 import os;
 import xlsxwriter;
 from dateutil.parser import parse;
-import user_email_map_original;
+import user_email_map;
 
 excelFile = xlsxwriter.Workbook("./output/feature_analysis.xlsx");
 graphSheet = excelFile.add_worksheet("Graphs");
@@ -52,7 +52,9 @@ sentCountArray = [];
 receivedCountArray = [];
 messageIdArray = [];
 
-for user in user_email_map_original.user_array:
+userKeys = user_email_map.user_email_map.keys();
+
+for user in userKeys:
 	sentCountArray.append((user, 0));
 	receivedCountArray.append((user, 0));
 
@@ -78,14 +80,14 @@ for r, csvRecord in enumerate(csvLines):
 		csvMap[csvHeader[f]] = csvRecord[f];
 
 	# Process sent & received
-	for u, user in enumerate(user_email_map_original.user_array):
-		if user_email_map_original.user_email_map[user] in csvMap["From"]:
+	for u, user in enumerate(userKeys):
+		if user_email_map.user_email_map[user] in csvMap["From"]:
 			sentCountArray[u] = (sentCountArray[u][0], sentCountArray[u][1] + 1);
-		elif user_email_map_original.user_email_map[user] in csvMap["To"]:
+		elif user_email_map.user_email_map[user] in csvMap["To"]:
 			receivedCountArray[u] = (receivedCountArray[u][0], receivedCountArray[u][1] + 1);
-		elif user_email_map_original.user_email_map[user] in csvMap["Cc"]:
+		elif user_email_map.user_email_map[user] in csvMap["Cc"]:
 			receivedCountArray[u] = (receivedCountArray[u][0], receivedCountArray[u][1] + 1);
-		elif user_email_map_original.user_email_map[user] in csvMap["Bcc"]:
+		elif user_email_map.user_email_map[user] in csvMap["Bcc"]:
 			receivedCountArray[u] = (receivedCountArray[u][0], receivedCountArray[u][1] + 1);
 
 	# Process date
@@ -175,19 +177,19 @@ for d, messageIdTuple in enumerate(messageIdArray):
 	messageIdSheet.write_row("A" + str(d + 2), [messageIdTuple[0], messageIdTuple[1]]);
 
 # Write some forumals
-statsSheet.write_row("A1", ["Max Sent", "=MAX(SentEmailCounts!$B$2:$B$" + str(len(user_email_map_original.user_array) + 1) + ")"]);
-statsSheet.write_row("A2", ["Min Sent", "=MIN(SentEmailCounts!$B$2:$B$" + str(len(user_email_map_original.user_array) + 1) + ")"]);
-statsSheet.write_row("A3", ["Average Sent", "=AVERAGE(SentEmailCounts!$B$2:$B$" + str(len(user_email_map_original.user_array) + 1) + ")"]);
-statsSheet.write_row("A5", ["Max Received", "=MAX(ReceivedEmailCounts!$B$2:$B$" + str(len(user_email_map_original.user_array) + 1) + ")"]);
-statsSheet.write_row("A6", ["Min Received", "=MIN(ReceivedEmailCounts!$B$2:$B$" + str(len(user_email_map_original.user_array) + 1) + ")"]);
-statsSheet.write_row("A7", ["Average Received", "=AVERAGE(SentEmailCounts!$B$2:$B$" + str(len(user_email_map_original.user_array) + 1) + ")"]);
+statsSheet.write_row("A1", ["Max Sent", "=MAX(SentEmailCounts!$B$2:$B$" + str(len(userKeys) + 1) + ")"]);
+statsSheet.write_row("A2", ["Min Sent", "=MIN(SentEmailCounts!$B$2:$B$" + str(len(userKeys) + 1) + ")"]);
+statsSheet.write_row("A3", ["Average Sent", "=AVERAGE(SentEmailCounts!$B$2:$B$" + str(len(userKeys) + 1) + ")"]);
+statsSheet.write_row("A5", ["Max Received", "=MAX(ReceivedEmailCounts!$B$2:$B$" + str(len(userKeys) + 1) + ")"]);
+statsSheet.write_row("A6", ["Min Received", "=MIN(ReceivedEmailCounts!$B$2:$B$" + str(len(userKeys) + 1) + ")"]);
+statsSheet.write_row("A7", ["Average Received", "=AVERAGE(SentEmailCounts!$B$2:$B$" + str(len(userKeys) + 1) + ")"]);
 
 #Create sent histogram
 chart = excelFile.add_chart({"type": "column"});
 chart.add_series({
     "name":       "=SentEmailCounts!$B$1",
-    "categories": "=SentEmailCounts!$A$2:$A$" + str(len(user_email_map_original.user_array) + 1),
-    "values":     "=SentEmailCounts!$B$2:$B$" + str(len(user_email_map_original.user_array) + 1),
+    "categories": "=SentEmailCounts!$A$2:$A$" + str(len(userKeys) + 1),
+    "values":     "=SentEmailCounts!$B$2:$B$" + str(len(userKeys) + 1),
 });
 
 chart.set_title ({
@@ -217,8 +219,8 @@ graphSheet.insert_chart("A1", chart, {"x_offset": 25, "y_offset": 10, "x_scale":
 chart = excelFile.add_chart({"type": "column"});
 chart.add_series({
     "name":       "=ReceivedEmailCounts!$B$1",
-    "categories": "=ReceivedEmailCounts!$A$2:$A$" + str(len(user_email_map_original.user_array) + 1),
-    "values":     "=ReceivedEmailCounts!$B$2:$B$" + str(len(user_email_map_original.user_array) + 1),
+    "categories": "=ReceivedEmailCounts!$A$2:$A$" + str(len(userKeys) + 1),
+    "values":     "=ReceivedEmailCounts!$B$2:$B$" + str(len(userKeys) + 1),
 });
 
 chart.set_title ({

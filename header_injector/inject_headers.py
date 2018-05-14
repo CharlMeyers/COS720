@@ -6,7 +6,7 @@ import random;
 import string;
 import tldextract;
 
-rootEmailDir = "../../maildir";
+rootEmailDir = "../../anonymized_emails";
 foldersToExplore = [{"user": "", "path": rootEmailDir}];
 filesToProcess = [];
 domainIpArray = {};

@@ -1,14 +1,6 @@
 import os;
-# From https://pythonadventures.wordpress.com/tag/import-from-parent-directory/
-def load_src(name, fpath):
-    import imp;
-    return imp.load_source(name, os.path.join(os.path.dirname(__file__), fpath))
-
-load_src("anonymiser", "../anonymiser.py")
-import anonymiser;
 
 mainPath = "../maildir";
-mainPath = 'F:/UserData/My Documents/Coding Stuff/maildir'
 
 emailFile = open("user_email_map.py", "w");
 emailFile.write("user_email_map = {\n");
@@ -33,9 +25,8 @@ for user in os.listdir(mainPath):
 				if line == "":
 					break;
 				if line.startswith("From: "):
-					header, sep, email = line.partition(" ");
-					shuffledEmail = anonymiser.shuffleEmailAddress(email);							
-					emailFile.write("\t\"" + user + "\": \"" + shuffledEmail + "\",\n");
+					header, sep, email = line.partition(" ");						
+					emailFile.write("\t\"" + user + "\": \"" + email + "\",\n");
 					break;
 
 			break;

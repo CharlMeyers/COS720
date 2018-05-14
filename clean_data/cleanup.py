@@ -133,7 +133,6 @@ for i, emailMap in enumerate(filesToProcess):
 				print("\rFound new header: " + headerInLine + " in file: " + csvLine["email path"]);
 				print("\rReading emails progress: " + str(round(i / len(filesToProcess) * 100, 2)) + "%", end='', flush=True);
 
-	csvLine["File-size"] = os.path.getsize(emailPath);
 	csvFileContent.append(csvLine);
 	email.close();
 
@@ -148,8 +147,6 @@ print("\nCompiling CSV file...", end='', flush=True);
 csvFile = open("output/cleaned_data.csv", "w");
 csvFileSmall = open("output/cleaned_data_small.csv", "w");
 line = "";
-
-headers.append("File-size");
 
 for header in headers:
  	line += header + ",";
